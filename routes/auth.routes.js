@@ -35,29 +35,40 @@ router.post('/signup', (req, res, next) => {
 })
 
 router.post('/login', (req, res, next) => {
+
     const {email, password} = req.body;
 
     User.findOne({ email })
     .then(dbUser => {
         if (!dbUser) {
-            return res.render("auth/login", {error: "user not found"});
+          return res.render('auth/login', { error: 'user not found' });
         }
-        const { _id, email: eMail, hashedPassword } = dbUser;
-        if(bcryptjs.compareSync(password, hashedPassword)) {
-            req.session.currentUser = {
-                _id, 
-                email: eMail,
-            };
-            return res.redirect("/profile");
-        }
-        return res.render("auth/login", {error: "password incorrect"});
+      const { _id, email: eMail, hashedPassword } = dbUser;
+      if (bcryptjs.compareSync(password, hashedPassword)) {
+        req.session.currentUser = {
+          _id,
+          email: eMail,
+        };
+        return res.redirect('/profile');
+      }
+      return res.render('auth/login', { error: 'password incorrect' });
     })
-    .catch(error => {next(error)})
+    
+    .catch(error => {
+      next(error);
+    });
 })
 
+router.get('/logout', (req, res, next) => {
+  req.session.destroy(error => {
+    // do something
+    if (error) {
+        return next(error);
+    }
+    return res.redirect('/login');
+  });
+});
 
-
-    
 
     
 

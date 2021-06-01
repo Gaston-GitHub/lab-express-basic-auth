@@ -19,6 +19,17 @@ const debug = require('debug')(`${app_name}:${path.basename(__filename).split('.
 
 const app = express();
 
+mongoose
+  .connect('mongodb://localhost/express-basic-auth-dev', {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(x => console.log(`Connected to Mongo! Database name: "${x.connections[0].name}"`))
+  .catch(err => console.error('Error connecting to mongo', err));
+
+
+
 // require database configuration
 require('./configs/db.config');
 
@@ -34,9 +45,9 @@ app.use(
             mongoUrl: 'mongodb://localhost/express-basic-auth-dev',
             ttl: 24 * 60 * 60,
         }),
-        secret: 'Ironhack',
+        secret: process.env.SESS_SECRET,
         resave: true,
-        saveUnitialized: true,
+        saveUninitialized: true,
         cookie: {
             maxAge: 24 * 60 * 60 * 1000,
         },
@@ -61,5 +72,7 @@ app.use('/', authRouter);
 app.use((req, res, next) => {
     next(createError(404));
 })
+
+
 
 module.exports = app;
